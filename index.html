@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0056b3">
+<title>한국도로교통공단 자가진단</title>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-540850668"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // 기본 페이지 뷰(접속 횟수) 수집 활성화
+  gtag('config', 'G-540850668');
+</script>
+
+<style>
+:root{
+  --primary:#0056b3;
+  --primary-light:#e8f0fb;
+  --green:#1b8a4a;
+  --red:#c62828;
+  --yellow:#FFFF00;
+  --orange:#e65100;
+  --teal:#00796b;
+  --text:#111;
+  --text-sub:#444;
+  --bg:#f0f2f5;
+  --card:#fff;
+  --radius:16px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px)
+}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;padding:0}
+body{
+  background:var(--bg);
+  font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+  -webkit-user-select:none;
+  user-select:none
+}
+
+/* ── 페이지 레이어 ── */
+.page{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);will-change:transform}
+#page-home{transform:translateX(0);z-index:1}
+#page-info,#page-reaction,#page-attention{z-index:2}
+.page.active{transform:translateX(0)}
+.page-inner{padding:0 16px calc(32px + var(--safe-bottom));padding-top:calc(var(--safe-top) + 20px);max-width:480px;margin:0 auto}
+
+/* ── 뒤로가기 바 ── */
+.top-bar{
+  position:sticky;top:0;z-index:10;
+  display:flex;align-items:center;
+  background:var(--card);
+  padding:0 16px;
+  padding-top:calc(var(--safe-top) + 14px);
+  padding-bottom:14px;
+  box-shadow:0 1px 0 rgba(0,0,0,.08)
+}
+.back-btn{
+  border:none;background:none;cursor:pointer;
+  display:flex;align-items:center;gap:10px;
+  padding:8px 18px 8px 4px;
+  color:var(--primary);touch-action:manipulation;line-height:1;
+  min-height:52px
+}
+.back-arrow{font-size:36px;line-height:1}
+.back-label{font-size:24px;font-weight:700}
+.top-bar-title{font-size:24px;font-weight:800;color:var(--text)}
+
+/* ── 홈 ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.home-hero{text-align:center;padding:44px 0 32px;animation:fadeUp .35s ease both}
+.home-hero .logo{font-size:64px;display:block;margin-bottom:14px}
+.home-hero h1{font-size:26px;font-weight:900;color:var(--text);margin:0 0 8px;letter-spacing:-.5px}
+.home-hero p{font-size:20px;color:var(--text-sub);margin:0;font-weight:500}
+
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;animation:fadeUp .4s ease .06s both}
+.menu-btn{
+  background:var(--card);border:none;border-radius:var(--radius);
+  padding:26px 14px 22px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  box-shadow:0 2px 12px rgba(0,0,0,.08);
+  cursor:pointer;touch-action:manipulation;text-decoration:none;
+  transition:transform .12s,box-shadow .12s;
+  min-height:130px;position:relative;overflow:hidden
+}
+.menu-btn:active{transform:scale(.96);box-shadow:none}
+.menu-btn.wide{
+  grid-column:span 2;flex-direction:row;
+  min-height:95px;padding:22px 24px;gap:18px;align-items:center
+}
+.menu-btn::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:5px;
+  border-radius:var(--radius) var(--radius) 0 0
+}
+.mc-blue::before{background:var(--primary)}
+.mc-teal::before{background:var(--teal)}
+.mc-orange::before{background:var(--orange)}
+.mc-red::before{background:var(--red)}
+.mc-green::before{background:var(--green)}
+.mc-yellow::before{background:var(--yellow)}
+  
+.menu-icon{font-size:42px;line-height:1;flex-shrink:0}
+.menu-btn.wide .menu-icon{font-size:38px}
+.menu-text{display:flex;flex-direction:column;align-items:center;gap:5px}
+.menu-btn.wide .menu-text{align-items:flex-start}
+.menu-label{font-size:20px;font-weight:800;color:var(--text);text-align:center;line-height:1.3;word-break:keep-all}
+.menu-btn.wide .menu-label{font-size:21px;text-align:left}
+.menu-desc{font-size:16px;color:var(--text-sub);text-align:center;line-height:1.4;word-break:keep-all;font-weight:500}
+.menu-btn.wide .menu-desc{text-align:left}
+
+/* ── 서브 페이지 공통 ── */
+.section-desc{font-size:22px;color:var(--text);margin:4px 0 22px;line-height:1.6;font-weight:700;text-align:center;word-break:keep-all}
+
+/* ── 지부·시험장 ── */
+.region-select{
+  width:100%;padding:18px 18px;
+  font-size:20px;font-weight:700;
+  border:2px solid var(--primary);border-radius:var(--radius);
+  background:var(--card);color:var(--text);
+  margin-bottom:6px;outline:none;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'%3E%3Cpath fill='%230056b3' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  touch-action:manipulation
+}
+.source-note{font-size:14px;color:#bbb;text-align:right;margin:4px 0 18px}
+.loc-list{list-style:none;padding:0;margin:0}
+.loc-item{
+  background:var(--card);border-radius:var(--radius);
+  padding:20px 18px;margin-bottom:14px;
+  box-shadow:0 2px 10px rgba(0,0,0,.07)
+}
+.badge{
+  display:inline-block;padding:5px 12px;
+  border-radius:20px;color:#fff;
+  font-size:15px;font-weight:700;margin-bottom:10px
+}
+.bg-exam{background:var(--teal)}
+.bg-branch{background:var(--orange)}
+.loc-name{font-size:24px;font-weight:900;color:var(--text);margin-bottom:10px}
+.loc-addr{
+  font-size:18px;color:var(--text-sub);
+  background:#f4f6f8;padding:12px 14px;
+  border-radius:10px;display:flex;align-items:flex-start;gap:10px;
+  margin-bottom:14px;line-height:1.6;font-weight:500
+}
+.loc-addr-text{flex:1}
+.copy-btn{
+  flex-shrink:0;padding:9px 13px;
+  background:#fff;border:2px solid #ccc;border-radius:10px;
+  font-size:15px;font-weight:700;color:#444;
+  cursor:pointer;touch-action:manipulation;
+  white-space:nowrap;line-height:1.3;
+  min-height:44px;display:flex;align-items:center
+}
+.copy-btn.copied{background:#e6f4ea;border-color:var(--green);color:var(--green)}
+.map-label{font-size:16px;color:#777;font-weight:700;margin:0 0 8px;letter-spacing:.3px}
+.btn-group{display:flex;gap:10px}
+.btn{
+  flex:1;padding:16px 0;border-radius:12px;text-align:center;
+  text-decoration:none;font-weight:700;font-size:18px;
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  min-height:56px;touch-action:manipulation
+}
+.btn-call{background:var(--green);color:#fff;font-size:20px;margin-bottom:10px}
+.btn-map{background:var(--card);border:2px solid #ddd;color:var(--text)}
+.empty-state{text-align:center;padding:64px 20px;color:#bbb;font-size:20px;line-height:1.7;list-style:none}
+.empty-state .icon{font-size:48px;margin-bottom:14px;display:block}
+
+/* ── 순발력 ── */
+.game-screen{
+  width:100%;height:min(60vw,360px);border-radius:24px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.18);
+  transition:background-color .08s;touch-action:manipulation;
+  margin-top:10px
+}
+.screen-waiting{background:var(--primary)}
+.screen-ready{background:var(--red)}
+.screen-now{background:var(--green)}
+.game-msg{color:#fff;font-size:34px;font-weight:800;text-align:center;padding:0 24px;line-height:1.4;pointer-events:none;word-break:keep-all}
+.game-sub{color:rgba(255,255,255,.9);font-size:22px;margin-top:12px;pointer-events:none;font-weight:700;text-align:center;word-break:keep-all}
+
+/* ── 주의력 ── */
+.timer-box{
+  font-size:54px;font-weight:900;color:var(--red);
+  text-align:center;margin-bottom:16px;letter-spacing:2px;
+  font-variant-numeric:tabular-nums
+}
+.grid-container{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;aspect-ratio:1/1}
+.num-btn{
+  background:var(--card);border:2px solid #d0d4da;border-radius:12px;
+  font-size:36px;font-weight:800;color:var(--text);cursor:pointer;
+  box-shadow:0 2px 4px rgba(0,0,0,.07);
+  display:flex;align-items:center;justify-content:center;
+  touch-action:manipulation;transition:transform .08s,background .08s;
+  -webkit-user-select:none;user-select:none
+}
+.num-btn:active{transform:scale(.92);background:#eef2ff}
+.num-btn.clicked{visibility:hidden}
+.num-btn.wrong{background:#ffcdd2!important}
+
+/* ── 결과 박스 ── */
+.result-box{
+  margin-top:14px;padding:20px 18px;
+  background:var(--card);border-radius:20px;display:none;text-align:center;
+  box-shadow:0 6px 20px rgba(0,86,179,.12);border:2px solid var(--primary-light)
+}
+.score-text{
+  font-size:46px;font-weight:900;color:var(--primary);
+  margin-top:4px !important;
+  margin-bottom:0px !important;
+  padding-bottom:0px !important;
+}
+.rank-text{
+  font-size:24px;color:var(--text);word-break:keep-all;line-height:1.4;font-weight:800;
+  margin-top:0px !important;
+  padding-top:2px !important;
+  margin-bottom:12px !important;
+}
+.retry-btn{
+  margin-top:12px;padding:16px 40px;background:var(--primary);color:#fff;
+  border:none;border-radius:30px;font-size:22px;cursor:pointer;font-weight:700;
+  min-height:56px;touch-action:manipulation;width:100%
+}
+/* ── 반응속도 비교·운전 설명 ── */
+.r-compare{
+  margin-top:14px;padding:16px 18px;
+  background:#f7f8fa;border-radius:14px;text-align:left;
+}
+.r-compare-title{font-size:17px;font-weight:800;color:#555;margin:0 0 10px}
+.r-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px solid #eee;font-size:17px;
+}
+.r-row:last-child{border-bottom:none}
+.r-row .rl{color:#666;font-weight:600}
+.r-row .rv{font-weight:800;color:var(--text)}
+.r-row.me .rv{color:var(--primary);font-size:19px}
+.r-drive{
+  margin-top:14px;padding:16px 18px;
+  background:#fff8f4;border-left:4px solid var(--orange);
+  border-radius:0 14px 14px 0;text-align:left;
+}
+.r-drive-title{font-size:17px;font-weight:800;color:var(--orange);margin:0 0 8px}
+.r-drive-body{font-size:17px;color:var(--text);line-height:1.8;font-weight:500;word-break:keep-all}
+.r-drive-body b{color:var(--red)}
+
+/* 결과 최상단에 고정 표기될 유의사항 스타일 */
+.r-caution-top{
+  margin-bottom:10px;padding:12px 14px;
+  background:#fff3f3;border-radius:12px;
+  font-size:16px;color:var(--red);line-height:1.5;
+  text-align:center;word-break:keep-all;font-weight:700;
+  border:1px solid #ffcdd2;
+}
+</style>
+</head>
+<body>
+
+<div id="page-home" class="page">
+  <div class="page-inner">
+    <div class="home-hero">
+      <span class="logo">&#x1F697;</span>
+      <h1>한국도로교통공단 광주전남지부</h1>
+      <p>고령운전자 종합 안내</p>
+    </div>
+    <div class="menu-grid">
+      <a href="https://www.safedriving.or.kr"
+         target="_blank" rel="noopener" class="menu-btn mc-red wide">
+        <span class="menu-icon">&#x1F4CB;</span>
+        <div class="menu-text">
+          <span class="menu-label">75세 이상 면허갱신</span>
+          <span class="menu-desc">고령운전자 교통안전교육 예약</span>
+        </div>
+      </a>
+      <button class="menu-btn mc-yellow wide" id="btn-info">
+        <span class="menu-icon">&#x1F3E2;</span>
+        <div class="menu-text">
+          <span class="menu-label">지부 및 시험장 찾기</span>
+          <span class="menu-desc">전화&#xB7;지도,내비게이션</span>
+        </div>
+      </button>
+      <button class="menu-btn mc-green wide" id="btn-reaction">
+        <span class="menu-icon">&#x26A1;</span>
+        <div class="menu-text">
+          <span class="menu-label">순발력 검사</span>
+          <span class="menu-desc">반응속도 자가진단</span>
+        </div>
+      </button>
+      <button class="menu-btn mc-green wide" id="btn-attention">
+        <span class="menu-icon">&#x1F440;</span>
+        <div class="menu-text">
+          <span class="menu-label">주의력 검사</span>
+          <span class="menu-desc">집중력 자가진단</span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="page-info" class="page">
+  <div class="top-bar">
+    <button class="back-btn" id="back-info">
+      <span class="back-arrow">&#x2039;</span>
+      <span class="back-label">홈으로</span>
+    </button>
+    <span class="top-bar-title">지부 및 시험장</span>
+  </div>
+  <div class="page-inner" style="padding-top:18px">
+    <p class="section-desc">지역을 선택하면 전화와 지도 안내를 드립니다.</p>
+    <select class="region-select" id="regionSelect">
+      <option value="" disabled selected>&#x1F53B; 지역을 선택하세요</option>
+      <option value="jeonnam">전라남도 / 광주</option>
+      <option value="seoul">서울특별시</option>
+      <option value="gyeonggi">경기도</option>
+      <option value="incheon">인천광역시</option>
+      <option value="gangwon">강원특별자치도</option>
+      <option value="chungbuk">충청북도</option>
+      <option value="chungnam">충청남도 / 대전 / 세종</option>
+      <option value="jeonbuk">전북특별자치도</option>
+      <option value="gyeongbuk">경상북도 / 대구</option>
+      <option value="gyeongnam">경상남도 / 부산 / 울산</option>
+      <option value="jeju">제주특별자치도</option>
+    </select>
+    <p class="source-note">&#x1F4CB; 출처: koroad.or.kr 지방조직찾기</p>
+    <ul class="loc-list" id="resultList">
+      <li class="empty-state">
+        <span class="icon">&#x1F5FA;&#xFE0F;</span>
+        지역을 선택하시면<br>안내해 드립니다.
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div id="page-reaction" class="page">
+  <div class="top-bar">
+    <button class="back-btn" id="back-reaction">
+      <span class="back-arrow">&#x2039;</span>
+      <span class="back-label">홈으로</span>
+    </button>
+    <span class="top-bar-title">순발력 검사</span>
+  </div>
+  <div class="page-inner" style="padding-top:18px">
+    <p class="section-desc" style="margin-bottom:12px;">화면이 초록색으로 바뀌면<br>최대한 빨리 터치하세요!</p>
+    <div id="reactionScreen" class="game-screen screen-waiting">
+      <div id="msgMain" class="game-msg">터치해서 시작</div>
+      <div id="msgSub" class="game-sub"></div>
+    </div>
+    <div id="reactionResult" class="result-box">
+      <div class="r-caution-top">※ 이 검사는 간이 자가진단입니다. 공식 의료·운전면허 적성검사 자료로 사용할 수 없습니다.</div>
+      <div class="score-text" id="reactionScore">0 ms</div>
+      <div class="rank-text" id="reactionRank"></div>
+      <div id="reactionDetail"></div>
+      <button class="retry-btn" id="retryReaction">다시 하기</button>
+    </div>
+  </div>
+</div>
+
+<div id="page-attention" class="page">
+  <div class="top-bar">
+    <button class="back-btn" id="back-attention">
+      <span class="back-arrow">&#x2039;</span>
+      <span class="back-label">홈으로</span>
+    </button>
+    <span class="top-bar-title">주의력 검사</span>
+  </div>
+  <div class="page-inner" style="padding-top:18px">
+    <p class="section-desc">숫자 1부터 16까지<br>순서대로 눌러보세요!</p>
+    <div class="timer-box" id="attenTimer">00.00</div>
+    <div class="grid-container" id="numGrid">
+      <button class="num-btn" id="startAttenBtn"
+        style="grid-column:span 4;background:#eef2ff;font-size:24px;font-weight:800;min-height:80px">
+        터치하여 시작하기
+      </button>
+    </div>
+    <div id="attenResult" class="result-box">
+      <div class="r-caution-top">※ 이 검사는 간이 자가진단입니다. 공식 의료·운전면허 적성검사 자료로 사용할 수 없습니다.</div>
+      <div class="score-text" id="attenScore">0초</div>
+      <div class="rank-text" id="attenRank"></div>
+      <button class="retry-btn" id="retryAtten">다시 하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  /* ── 내비게이션 ── */
+  var navH = false;
+  function goPage(name, e) {
+    if (e && e.type === 'touchend') { navH = true; e.preventDefault(); }
+    else if (navH) { navH = false; return; }
+    document.getElementById('page-' + name).classList.add('active');
+  }
+  function goBack(e) {
+    if (e && e.type === 'touchend') { navH = true; e.preventDefault(); }
+    else if (navH) { navH = false; return; }
+    ['info','reaction','attention'].forEach(function(n) {
+      document.getElementById('page-' + n).classList.remove('active');
+    });
+  }
+  function addNav(id, fn) {
+    var el = document.getElementById(id);
+    el.addEventListener('touchend', fn);
+    el.addEventListener('click', fn);
+  }
+  addNav('btn-info',       function(e){ goPage('info', e); });
+  addNav('btn-reaction',   function(e){ goPage('reaction', e); });
+  addNav('btn-attention',  function(e){ goPage('attention', e); });
+  addNav('back-info',      function(e){ goBack(e); });
+  addNav('back-reaction',  function(e){ goBack(e); });
+  addNav('back-attention', function(e){ goBack(e); });
+
+  /* ── 상수 ── */
+  var RE = 300, RG = 500, AE = 15, AG = 25, AO = 35;
+
+  /* ── 주소 복사 ── */
+  function copyAddr(btn, addr) {
+    function feedback() {
+      btn.textContent = '✅ 복사됨';
+      btn.classList.add('copied');
+      setTimeout(function(){ btn.textContent = '📋 복사'; btn.classList.remove('copied'); }, 2000);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(addr).then(feedback).catch(function(){ fallback(); });
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = addr; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      feedback();
+    }
+  }
+
+  /* ── 데이터 ── */
+  var db = {
+    seoul:[
+      {type:'지부',   name:'서울지부',                addr:'서울 서초구 양재대로 242 (염곡동)',            phone:'02-3498-2114'},
+      {type:'시험장', name:'강남 운전면허시험장',     addr:'서울 강남구 테헤란로114길 23',                 phone:'02-2193-7600'},
+      {type:'시험장', name:'강서 운전면허시험장',     addr:'서울 강서구 남부순환로 171',                   phone:'02-2669-2998'},
+      {type:'시험장', name:'도봉 운전면허시험장',     addr:'서울 노원구 동일로 1449',                      phone:'02-2092-0100'},
+      {type:'시험장', name:'서부 운전면허시험장',     addr:'서울 마포구 월드컵로42길 13',                  phone:'02-300-3500'}
+    ],
+    gyeonggi:[
+      {type:'지부',   name:'경기지부',                addr:'경기 수원시 팔달구 효원로 1',                  phone:'031-270-1300'},
+      {type:'시험장', name:'용인 운전면허시험장',     addr:'경기 용인시 기흥구 용구대로 2267',             phone:'031-289-0100'},
+      {type:'시험장', name:'안산 운전면허시험장',     addr:'경기 안산시 단원구 SN로 352',                phone:'031-490-2800'},
+      {type:'시험장', name:'의정부 운전면허시험장',   addr:'경기 의정부시 금오로109번길 55',               phone:'031-850-8700'}
+    ],
+    incheon:[
+      {type:'지부',   name:'인천지부',                addr:'인천 연수구 함박뫼로 124',                     phone:'032-830-6000'},
+      {type:'시험장', name:'인천 운전면허시험장',     addr:'인천 남동구 아암대로 1247',                    phone:'032-810-2300'}
+    ],
+    gangwon:[
+      {type:'지부',   name:'강원특별자치도지부',      addr:'강원 춘천시 영서로 2663',                      phone:'033-250-9300'},
+      {type:'시험장', name:'춘천 운전면허시험장',     addr:'강원 춘천시 신북읍 신북로 247',                phone:'033-269-1200'},
+      {type:'시험장', name:'강릉 운전면허시험장',     addr:'강원 강릉시 사천면 중앙서로 464',              phone:'033-640-3200'},
+      {type:'시험장', name:'원주 운전면허시험장',     addr:'강원 원주시 호저면 사제로 596',                phone:'033-737-0600'},
+      {type:'시험장', name:'태백 운전면허시험장',     addr:'강원 태백시 수아밭길 166',                     phone:'033-550-5700'}
+    ],
+    chungbuk:[
+      {type:'지부',   name:'충북지부',                addr:'충북 청주시 청원구 오창읍 중심상업2로 48',      phone:'043-240-5700'},
+      {type:'시험장', name:'청주 운전면허시험장',     addr:'충북 청주시 상당구 가덕면 교육원로 131-20',    phone:'043-290-0900'},
+      {type:'시험장', name:'충주 운전면허시험장',     addr:'충북 충주시 대가주1길 16',                     phone:'043-840-4600'}
+    ],
+    chungnam:[
+      {type:'지부',   name:'대전·세종·충남지부',     addr:'대전 유성구 배울2대로 23',                     phone:'042-939-3600'},
+      {type:'시험장', name:'대전 운전면허시험장',     addr:'대전 동구 산서로1660번길 90',                  phone:'042-250-3300'},
+      {type:'시험장', name:'예산 운전면허시험장',     addr:'충남 예산군 오가면 국사봉로 500',              phone:'041-330-7400'}
+    ],
+    jeonbuk:[
+      {type:'지부',   name:'전북지부',                addr:'전북 전주시 완산구 내원당길 29 (대성동)',       phone:'063-281-6114'},
+      {type:'시험장', name:'전북 운전면허시험장',     addr:'전북 전주시 덕진구 팔복로 359',                phone:'063-210-3800'}
+    ],
+    jeonnam:[
+      {type:'지부',   name:'광주·전남지부',           addr:'광주 북구 우치로 201',                         phone:'062-530-6114'},
+      {type:'시험장', name:'전남 운전면허시험장',     addr:'전남 나주시 내영산2길 49',                     phone:'061-339-1500'},
+      {type:'시험장', name:'광양 운전면허시험장',     addr:'전남 광양시 광양읍 대학로 11',                 phone:'061-760-1600'}
+    ],
+    gyeongbuk:[
+      {type:'지부',   name:'대구지부',                addr:'대구 남구 대명서로 31 (대명동)',                phone:'053-659-6114'},
+      {type:'지부',   name:'경북지부',                addr:'경북 구미시 인동31길 14-3 (인의동)',            phone:'054-478-6114'},
+      {type:'시험장', name:'대구 운전면허시험장',     addr:'대구 북구 태암남로 38',                        phone:'053-320-2400'},
+      {type:'시험장', name:'문경 운전면허시험장',     addr:'경북 문경시 신기공단1길 12',                   phone:'054-550-2600'},
+      {type:'시험장', name:'포항 운전면허시험장',     addr:'경북 포항시 남구 오천읍 냉천로 656',           phone:'054-290-9300'}
+    ],
+    gyeongnam:[
+      {type:'지부',   name:'부산지부',                addr:'부산 남구 대연동',                              phone:'051-629-9000'},
+      {type:'지부',   name:'울산·경남지부',           addr:'경남 창원시 의창구 창원대로18번길 46',         phone:'055-270-6000'},
+      {type:'시험장', name:'부산북부 운전면허시험장', addr:'부산 사상구 사상로367번길 35',                 phone:'051-310-7600'},
+      {type:'시험장', name:'부산남부 운전면허시험장', addr:'부산 남구 용호로 16',                          phone:'051-610-8000'},
+      {type:'시험장', name:'울산 운전면허시험장',     addr:'울산 울주군 상북면 봉화로 342',                phone:'052-255-8700'},
+      {type:'시험장', name:'마산 운전면허시험장',     addr:'경남 창원시 마산합포구 진동면 진북산업로 90-1',phone:'055-240-8100'}
+    ],
+    jeju:[
+      {type:'지부',   name:'제주지부',                addr:'제주 제주시 516로 2870',                        phone:'064-710-9100'},
+      {type:'시험장', name:'제주 운전면허시험장',     addr:'제주 제주시 애월읍 평화로 2072',               phone:'064-710-9200'}
+    ]
+  };
+
+  document.getElementById('regionSelect').addEventListener('change', function() {
+    var items = db[this.value] || [];
+    var list = document.getElementById('resultList');
+    var frag = document.createDocumentFragment();
+    items.forEach(function(item) {
+      var bc = item.type === '시험장' ? 'bg-exam' : 'bg-branch';
+      var q  = encodeURIComponent('한국도로교통공단 ' + item.name);
+      var li = document.createElement('li');
+      li.className = 'loc-item';
+
+      var badge = document.createElement('span');
+      badge.className = 'badge ' + bc;
+      badge.textContent = item.type;
+
+      var locName = document.createElement('div');
+      locName.className = 'loc-name';
+      locName.textContent = item.name;
+
+      var addrBox = document.createElement('div');
+      addrBox.className = 'loc-addr';
+      var addrText = document.createElement('span');
+      addrText.className = 'loc-addr-text';
+      addrText.textContent = '📍 ' + item.addr;
+      var copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.textContent = '📋 복사';
+      copyBtn.addEventListener('click', (function(a){ return function(){ copyAddr(this, a); }; })(item.addr));
+      addrBox.appendChild(addrText);
+      addrBox.appendChild(copyBtn);
+
+      var callBtn = document.createElement('a');
+      callBtn.href = 'tel:' + item.phone;
+      callBtn.className = 'btn btn-call';
+      callBtn.textContent = '📞 ' + item.phone;
+
+      var mapLabel = document.createElement('p');
+      mapLabel.className = 'map-label';
+      mapLabel.textContent = '🗺️ 길 찾기';
+
+      var btnGroup = document.createElement('div');
+      btnGroup.className = 'btn-group';
+      var naver = document.createElement('a');
+      naver.href = 'https://m.map.naver.com/search2/search.naver?query=' + q;
+      naver.target = '_blank'; naver.rel = 'noopener';
+      naver.className = 'btn btn-map';
+      naver.style.color = '#03C75A';
+      naver.textContent = '네이버 지도';
+      var kakao = document.createElement('a');
+      kakao.href = 'https://map.kakao.com/link/search/' + q;
+      kakao.target = '_blank'; kakao.rel = 'noopener';
+      kakao.className = 'btn btn-map';
+      kakao.style.cssText = 'color:#3A1D1D;background:#F9E000';
+      kakao.textContent = '카카오 지도';
+      btnGroup.appendChild(naver);
+      btnGroup.appendChild(kakao);
+
+      li.appendChild(badge);
+      li.appendChild(locName);
+      li.appendChild(addrBox);
+      li.appendChild(callBtn);
+      li.appendChild(mapLabel);
+      li.appendChild(btnGroup);
+      frag.appendChild(li);
+    });
+    list.innerHTML = '';
+    list.appendChild(frag);
+  });
+
+  /* ── 순발력 ── */
+  var WAIT='wait', READY='ready', NOW='now';
+  var rState=WAIT, rStart=0, rTimer=null, rH=false;
+  var rScreen=document.getElementById('reactionScreen');
+  var rMsg=document.getElementById('msgMain');
+  var rSub=document.getElementById('msgSub');
+  var rResult=document.getElementById('reactionResult');
+
+  function rTouch(e) {
+    if (e.type==='touchend'){rH=true;e.preventDefault();}
+    else if(rH){rH=false;return;}
+    if(rState===WAIT){
+      rState=READY; rScreen.className='game-screen screen-ready';
+      rMsg.textContent='잠깐 기다리세요…';
+      rSub.textContent='초록색이 되면 바로 터치!';
+      rResult.style.display='none';
+      rTimer=setTimeout(function(){
+        rState=NOW; rScreen.className='game-screen screen-now';
+        rMsg.textContent='지금 터치!'; rSub.textContent=''; rStart=Date.now();
+      }, Math.floor(Math.random()*3000)+2000);
+    } else if(rState===READY){
+      clearTimeout(rTimer); rState=WAIT;
+      rScreen.className='game-screen screen-waiting';
+      rMsg.textContent='너무 빨랐어요!'; rSub.textContent='다시 터치해서 시작하세요';
+    } else if(rState===NOW){
+      var d=Date.now()-rStart; rState=WAIT;
+      rScreen.className='game-screen screen-waiting';
+      rMsg.textContent=d+'ms'; rSub.textContent='터치해서 다시 시작';
+      document.getElementById('reactionScore').textContent=d+' ms';
+
+      /* ── 등급 및 메시지 ── */
+      var rankMsg, grade;
+      if(d < 200){
+        grade='최상'; rankMsg='매우 뛰어난 순발력입니다! 🏆';
+      } else if(d < 300){
+        grade='우수'; rankMsg='훌륭한 반응속도입니다! 🏎️';
+      } else if(d < 400){
+        grade='양호'; rankMsg='안전운전에 적합한 반응속도입니다 👍';
+      } else if(d < 600){
+        grade='보통'; rankMsg='평균 수준의 반응속도입니다 🚙';
+      } else if(d < 800){
+        grade='주의'; rankMsg='반응이 다소 느립니다. 주의가 필요합니다 ⚠️';
+      } else {
+        grade='경고'; rankMsg='반응속도가 많이 느립니다. 운전 전 충분한 휴식을 취하세요 🛑';
+      }
+      document.getElementById('reactionRank').textContent=rankMsg;
+
+      /* ── [GA4 이벤트 전송] 순발력 검사 완료 데이터 수집 ── */
+      if (typeof gtag === 'function') {
+        gtag('event', 'complete_reaction_test', {
+          'score_ms': d,          // 밀리초 단위 스코어 숫자 (예: 420)
+          'result_grade': grade   // 판정 등급 텍스트 (예: '양호')
+        });
+      }
+
+      /* ── 공주거리 계산 (반응시간 동안 이동 거리) ── */
+      var sec = d / 1000;
+      var dist50  = Math.round(50  / 3.6 * sec * 10) / 10;
+      var dist80  = Math.round(80  / 3.6 * sec * 10) / 10;
+      var dist100 = Math.round(100 / 3.6 * sec * 10) / 10;
+
+      /* ── 운전 상황 설명 ── */
+      var driveMsg;
+      if(d < 300){
+        driveMsg='위험 상황에서 브레이크를 매우 빠르게 밟을 수 있습니다. 시속 80km 주행 시 브레이크를 밟기 전까지 차는 약 <b>'+dist80+'m</b> 이동합니다.';
+      } else if(d < 500){
+        driveMsg='양호한 반응속도입니다. 시속 80km 주행 중 위험을 발견하면 브레이크를 밟기 전까지 약 <b>'+dist80+'m</b>를 그대로 달립니다. 안전거리를 충분히 유지하세요.';
+      } else if(d < 800){
+        driveMsg='반응이 다소 느려 시속 60km에서도 브레이크 전까지 <b>'+dist50+'m 이상</b> 이동합니다. 앞차와의 거리를 평소보다 더 넓게 유지하고, 피로하거나 졸릴 때는 운전을 삼가세요.';
+      } else {
+        driveMsg='반응속도가 1초에 가깝습니다. 시속 60km에서 <b>'+dist50+'m 이상</b>, 고속도로(100km)에서 <b>'+dist100+'m 이상</b> 제동 없이 달립니다. 오늘 운전은 삼가시고, 충분한 휴식 후 재검사를 권합니다.';
+      }
+
+      /* ── 비교표 HTML 생성 ── */
+      var detail = document.getElementById('reactionDetail');
+      detail.innerHTML =
+        '<div class="r-compare">' +
+          '<p class="r-compare-title">📊 일반 성인과의 비교</p>' +
+          '<div class="r-row"><span class="rl">20~30대 평균</span><span class="rv">200~250 ms</span></div>' +
+          '<div class="r-row"><span class="rl">65~74세 평균</span><span class="rv">약 720 ms</span></div>' +
+          '<div class="r-row"><span class="rl">75세 이상 평균</span><span class="rv">약 840 ms</span></div>' +
+          '<div class="r-row me"><span class="rl">내 결과</span><span class="rv">'+d+' ms ('+grade+')</span></div>' +
+        '</div>' +
+        '<div class="r-drive">' +
+          '<p class="r-drive-title">🚗 운전 상황에서는?</p>' +
+          '<p class="r-drive-body">'+driveMsg+'</p>' +
+          '<p class="r-drive-body" style="margin-top:8px">브레이크를 밟기 전까지 차는 계속 달립니다:<br>' +
+          '시속 50km → <b>'+dist50+'m</b> &nbsp;|&nbsp; ' +
+          '시속 80km → <b>'+dist80+'m</b> &nbsp;|&nbsp; ' +
+          '시속 100km → <b>'+dist100+'m</b></p>' +
+        '</div>';
+
+      rResult.style.display='block';
+    }
+  }
+  rScreen.addEventListener('touchend', rTouch);
+  rScreen.addEventListener('click', rTouch);
+  document.getElementById('retryReaction').addEventListener('touchend', function(e){ e.preventDefault(); resetR(); });
+  document.getElementById('retryReaction').addEventListener('click', resetR);
+  function resetR(){
+    rState=WAIT; clearTimeout(rTimer);
+    rScreen.className='game-screen screen-waiting';
+    rMsg.textContent='터치해서 시작'; rSub.textContent='';
+    rResult.style.display='none';
+    document.getElementById('reactionDetail').innerHTML='';
+  }
+
+  /* ── 주의력 ── */
+  var tNum=1, aStart=0, aIv=null, aPlaying=false;
+  function initA(){
+    clearInterval(aIv); aPlaying=false;
+    document.getElementById('attenResult').style.display='none';
+    document.getElementById('attenTimer').textContent='00.00';
+    var grid=document.getElementById('numGrid');
+    grid.style.display='grid'; /* 다시하기 시 격자 영역 노출 활성화 */
+    grid.innerHTML='';
+    var b=document.createElement('button');
+    b.className='num-btn'; b.id='startAttenBtn';
+    b.style.cssText='grid-column:span 4;background:#eef2ff;font-size:24px;font-weight:800;min-height:80px';
+    b.textContent='터치하여 시작하기';
+    b.addEventListener('touchend',function(e){e.preventDefault();startA();});
+    b.addEventListener('click',startA);
+    grid.appendChild(b);
+  }
+  function startA(){
+    clearInterval(aIv); tNum=1;
+    var nums=Array.from({length:16},function(_,i){return i+1;});
+    for(var i=nums.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1));
+      var tmp=nums[i]; nums[i]=nums[j]; nums[j]=tmp;
+    }
+    var grid=document.getElementById('numGrid');
+    grid.style.display='grid'; /* 검사 시작 시 격자 활성화 */
+    grid.innerHTML='';
+    nums.forEach(function(n){
+      var b=document.createElement('button');
+      b.className='num-btn'; b.textContent=n;
+      b.addEventListener('pointerdown',(function(btn,num){
+        return function(e){e.preventDefault();checkA(btn,num);};
+      })(b,n));
+      grid.appendChild(b);
+    });
+    aPlaying=true; aStart=Date.now();
+    aIv=setInterval(function(){
+      document.getElementById('attenTimer').textContent=((Date.now()-aStart)/1000).toFixed(2);
+    },100);
+  }
+  function checkA(btn,n){
+    if(!aPlaying)return;
+    if(n===tNum){
+      btn.classList.add('clicked');
+      if(++tNum>16)endA();
+    } else {
+      btn.classList.add('wrong');
+      setTimeout(function(){btn.classList.remove('wrong');},200);
+    }
+  }
+  function endA(){
+    clearInterval(aIv); aPlaying=false;
+    var t=document.getElementById('attenTimer').textContent;
+    var s=parseFloat(t);
+    document.getElementById('attenScore').textContent=t+'초';
+    
+    var rankText = '';
+    if(s<AE) rankText = '최상';
+    else if(s<AG) rankText = '양호';
+    else if(s<AO) rankText = '보통';
+    else rankText = '주의';
+
+    document.getElementById('attenRank').textContent =
+      s<AE?'매우 뛰어난 주의력입니다! 🦅':s<AG?'운전하기 좋은 집중력입니다. 🚘':s<AO?'보통 수준입니다. 🚙':'조금 더 천천히 살펴보세요. 🚶';
+    
+    /* ── [GA4 이벤트 전송] 주의력 검사 완료 데이터 수집 ── */
+    if (typeof gtag === 'function') {
+      gtag('event', 'complete_attention_test', {
+        'score_seconds': s,       // 초 단위 스코어 실수형 숫자 (예: 18.42)
+        'result_grade': rankText  // 판정 등급 텍스트 (예: '양호')
+      });
+    }
+
+    /* 변경된 핵심 코드: 검사가 끝나면 16개 숫자 격자 영역을 화면에서 완전히 숨깁니다(제외) */
+    document.getElementById('numGrid').style.display='none';
+
+    document.getElementById('attenResult').style.display='block';
+  }
+  document.getElementById('startAttenBtn').addEventListener('touchend',function(e){e.preventDefault();startA();});
+  document.getElementById('startAttenBtn').addEventListener('click',startA);
+  document.getElementById('retryAtten').addEventListener('touchend',function(e){e.preventDefault();initA();});
+  document.getElementById('retryAtten').addEventListener('click',initA);
+
+})();
+</script>
+</body>
+</html>
