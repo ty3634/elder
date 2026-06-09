@@ -353,9 +353,9 @@ body{
     <span class="top-bar-title">순발력 검사</span>
   </div>
   <div class="page-inner" style="padding-top:18px">
-    <p class="section-desc" style="margin-bottom:12px;">화면이 초록색으로 바뀌면<br>최대한 빨리 터치하세요!</p>
+    <p class="section-desc" style="margin-bottom:12px;">화면이 초록색으로 바뀌면<br>최대한 빨리 누르세요!</p>
     <div id="reactionScreen" class="game-screen screen-waiting">
-      <div id="msgMain" class="game-msg">터치해서 시작</div>
+      <div id="msgMain" class="game-msg">눌러서 시작</div>
       <div id="msgSub" class="game-sub"></div>
     </div>
     <div id="reactionResult" class="result-box">
@@ -382,7 +382,7 @@ body{
     <div class="grid-container" id="numGrid">
       <button class="num-btn" id="startAttenBtn"
         style="grid-column:span 4;background:#eef2ff;font-size:24px;font-weight:800;min-height:80px">
-        터치하여 시작하기
+        눌러서 시작하기
       </button>
     </div>
     <div id="attenResult" class="result-box">
@@ -592,20 +592,20 @@ body{
     if(rState===WAIT){
       rState=READY; rScreen.className='game-screen screen-ready';
       rMsg.textContent='잠깐 기다리세요…';
-      rSub.textContent='초록색이 되면 바로 터치!';
+      rSub.textContent='초록색이 되면 바로 누르세요!';
       rResult.style.display='none';
       rTimer=setTimeout(function(){
         rState=NOW; rScreen.className='game-screen screen-now';
-        rMsg.textContent='지금 터치!'; rSub.textContent=''; rStart=Date.now();
+        rMsg.textContent='누르세요!'; rSub.textContent=''; rStart=Date.now();
       }, Math.floor(Math.random()*3000)+2000);
     } else if(rState===READY){
       clearTimeout(rTimer); rState=WAIT;
       rScreen.className='game-screen screen-waiting';
-      rMsg.textContent='너무 빨랐어요!'; rSub.textContent='다시 터치해서 시작하세요';
+      rMsg.textContent='너무 빨랐어요!'; rSub.textContent='다시 눌러서 시작하세요';
     } else if(rState===NOW){
       var d=Date.now()-rStart; rState=WAIT;
       rScreen.className='game-screen screen-waiting';
-      rMsg.textContent=d+'ms'; rSub.textContent='터치해서 다시 시작';
+      rMsg.textContent=d+'ms'; rSub.textContent='눌러서 다시 시작';
       document.getElementById('reactionScore').textContent=d+' ms';
 
       /* ── 등급 및 메시지 ── */
@@ -680,7 +680,7 @@ body{
   function resetR(){
     rState=WAIT; clearTimeout(rTimer);
     rScreen.className='game-screen screen-waiting';
-    rMsg.textContent='터치해서 시작'; rSub.textContent='';
+    rMsg.textContent='눌러서 시작'; rSub.textContent='';
     rResult.style.display='none';
     document.getElementById('reactionDetail').innerHTML='';
   }
@@ -697,7 +697,7 @@ body{
     var b=document.createElement('button');
     b.className='num-btn'; b.id='startAttenBtn';
     b.style.cssText='grid-column:span 4;background:#eef2ff;font-size:24px;font-weight:800;min-height:80px';
-    b.textContent='터치하여 시작하기';
+    b.textContent='눌러서 시작하기';
     b.addEventListener('touchend',function(e){e.preventDefault();startA();});
     b.addEventListener('click',startA);
     grid.appendChild(b);
